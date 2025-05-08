@@ -111,7 +111,6 @@ async def block_server(interaction: discord.Interaction, guild_id: str):
         config = server_config.setdefault(interaction.guild.id, {"approved": [], "pending": [], "blocked": [], "log": [], "notify": True})
         if gid not in config["blocked"]:
             config["blocked"].append(gid)
-            log_action(interaction.guild.id, "block", gid)
             save_server_config()
             await interaction.response.send_message(f"⛔ `{gid}` 서버를 차단 목록에 추가했습니다.", ephemeral=True)
         else:
@@ -208,16 +207,14 @@ async def approve(interaction: discord.Interaction, guild_id: str):
         config = server_config.setdefault(interaction.guild.id, {"approved": [], "pending": [], "mode": "private"})
         if gid in config["pending"]:
             config["pending"].remove(gid)
-        save_server_config()
-        config["approved"].append(gid)
-        save_server_config()
-        await interaction.response.send_message(f"✅ `{gid}` 서버의 요청을 승인했습니다.", ephemeral=True)
+            config["approved"].append(gid)
+            save_server_config()
+            await interaction.response.send_message(f"✅ `{gid}` 서버의 요청을 승인했습니다.", ephemeral=True)
     except ValueError:
         await interaction.response.send_message("❌ 숫자 ID를 입력해주세요.", ephemeral=True)
     except:
         await interaction.response.send_message("⚠️ 해당 서버의 요청이 존재하지 않습니다.", ephemeral=True)
 
-@tree.command(name="deny", description="❌ 연합 요청을 거부합니다.")
 @app_commands.describe(guild_id="거부할 서버 ID")
 async def deny(interaction: discord.Interaction, guild_id: str):
     try:
