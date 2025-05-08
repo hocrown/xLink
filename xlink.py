@@ -41,8 +41,7 @@ async def on_message(message):
         return  # 감지 대상이 아닌 채널
 
     # 메시지 구성
-    relay_msg = f"📡 **[{source_label} → {target_label}]** `{message.author.display_name}`:
-{message.content}"
+    relay_msg = f"📡 **[{source_label} → {target_label}]** `{message.author.display_name}`:\n{message.content}"
 
     # 음성 채널 확인
     vc_channel = None
