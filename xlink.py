@@ -33,8 +33,7 @@ async def on_message(message):
     if message.channel.id != SOURCE_CHANNEL_ID:
         return  # 송신 채널이 아니면 무시
 
-    relay_msg = f"📡 `{message.author.display_name}`:
-{message.content}"
+    relay_msg = f"📡 `{message.author.display_name}`:\n{message.content}"
 
     # 음성 채널 확인
     vc_channel = None
