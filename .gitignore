@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+
+# 환경 변수
+.env
+
+# Docker
+*.log
+*.pid
+*.tar
+*.bak
+*.swp
+*.tmp
+
+# 기타
+.DS_Store
+# Cursor (VS Code 기반)
+.vscode/
+*.code-workspace
+
+# 편집기 메타 정보
+*.cursor
+.cursor-history/
+
+# AI 코딩 힌트 기록 (커서가 저장하는 중간 캐시 등)
+.cursor-tmp/

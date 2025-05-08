@@ -1,0 +1,32 @@
+# 파이썬 캐시 및 컴파일 파일
+__pycache__/
+*.pyc
+*.pyo
+
+# 가상환경
+env/
+venv/
+
+# Git 및 환경설정
+.git
+.gitignore
+.env
+.env.*
+.DS_Store
+
+# 로그, 백업 등
+*.log
+*.bak
+*.tmp
+*.swp
+
+# VS Code 등 IDE 설정
+.vscode/
+.idea/
+
+# Cursor / VS Code
+.vscode/
+*.code-workspace
+.cursor
+.cursor-history/
+.cursor-tmp/
