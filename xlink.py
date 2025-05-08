@@ -9,8 +9,8 @@ from discord.ext import commands
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-CHANNEL_A = int(os.getenv("CHANNEL_A"))  # A 서버의 중계 채널
-CHANNEL_B = int(os.getenv("CHANNEL_B"))  # B 서버의 중계 채널
+SOURCE_CHANNEL_ID = int(os.getenv("SOURCE_CHANNEL_ID"))  # 현재 서버의 송신 채널
+TARGET_CHANNEL_ID = int(os.getenv("TARGET_CHANNEL_ID"))  # 상대 서버의 수신 채널
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -30,18 +30,11 @@ async def on_message(message):
     if message.author.bot:
         return  # 봇 메시지 무시
 
-    # 어디서 왔는지 판단
-    if message.channel.id == CHANNEL_A:
-        source_label, target_label = "A", "B"
-        target_channel_id = CHANNEL_B
-    elif message.channel.id == CHANNEL_B:
-        source_label, target_label = "B", "A"
-        target_channel_id = CHANNEL_A
-    else:
-        return  # 감지 대상이 아닌 채널
+    if message.channel.id != SOURCE_CHANNEL_ID:
+        return  # 송신 채널이 아니면 무시
 
-    # 메시지 구성
-    relay_msg = f"📡 **[{source_label} → {target_label}]** `{message.author.display_name}`:\n{message.content}"
+    relay_msg = f"📡 `{message.author.display_name}`:
+{message.content}"
 
     # 음성 채널 확인
     vc_channel = None
@@ -63,7 +56,7 @@ async def on_message(message):
             relay_msg += "\n⚠️ 음성 초대링크를 생성할 권한이 없습니다."
 
     # 대상 채널로 전송
-    target_channel = bot.get_channel(target_channel_id)
+    target_channel = bot.get_channel(TARGET_CHANNEL_ID)
     if target_channel:
         await target_channel.send(relay_msg)
 
