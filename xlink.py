@@ -157,9 +157,40 @@ def load_server_config():
 
 # 서버 설정 저장
 def save_server_config():
+    os.makedirs("backups", exist_ok=True)
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(server_config, f, indent=2, ensure_ascii=False)
         print("💾 서버 설정 저장 완료")
+
+    # 자동 백업 (최대 5개 + 중복 방지)
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y%m%d_%H%M%S")
+    backup_file = f"backups/server_config_{timestamp}.json"
+
+    try:
+        # 중복 방지: 1분 내 파일 있으면 생략
+        existing = sorted(Path("backups").glob("server_config_*.json"))
+        if existing:
+            last_time = existing[-1].name.split("_")[-1].split(".")[0]
+            if len(last_time) == 6:
+                last_time_dt = datetime.datetime.strptime(last_time, "%H%M%S")
+                if (now - now.replace(hour=last_time_dt.hour, minute=last_time_dt.minute, second=last_time_dt.second)).seconds < 60:
+                    print("⏱️ 최근 백업과 1분 이내여서 생략됨")
+                    return
+
+        with open(backup_file, "w", encoding="utf-8") as bf:
+            json.dump(server_config, bf, indent=2, ensure_ascii=False)
+            print(f"🗂️ 백업 저장됨 → {backup_file}")
+        
+        # 최대 5개 유지
+        all_backups = sorted(Path("backups").glob("server_config_*.json"))
+        if len(all_backups) > 5:
+            for old in all_backups[:-5]:
+                old.unlink()
+                print(f"🧹 오래된 백업 삭제됨: {old}")
+
+    except Exception as e:
+        print(f"⚠️ 백업 실패: {e}")
 
 server_config = {}  # {guild_id: {"mode": "public"/"private", "approved": [ids], "pending": [ids]}}
 
@@ -210,10 +241,10 @@ async def approve(interaction: discord.Interaction, guild_id: str):
             config["approved"].append(gid)
             save_server_config()
             await interaction.response.send_message(f"✅ `{gid}` 서버의 요청을 승인했습니다.", ephemeral=True)
-    except ValueError:
-        await interaction.response.send_message("❌ 숫자 ID를 입력해주세요.", ephemeral=True)
+        else:
+            await interaction.response.send_message("⚠️ 해당 서버의 요청이 존재하지 않습니다.", ephemeral=True)
     except:
-        await interaction.response.send_message("⚠️ 해당 서버의 요청이 존재하지 않습니다.", ephemeral=True)
+        await interaction.response.send_message("❌ 숫자 ID를 입력해주세요.", ephemeral=True)
 
 @app_commands.describe(guild_id="거부할 서버 ID")
 async def deny(interaction: discord.Interaction, guild_id: str):
@@ -222,12 +253,12 @@ async def deny(interaction: discord.Interaction, guild_id: str):
         config = server_config.setdefault(interaction.guild.id, {"approved": [], "pending": [], "mode": "private"})
         if gid in config["pending"]:
             config["pending"].remove(gid)
-        save_server_config()
-        await interaction.response.send_message(f"🚫 `{gid}` 서버의 요청을 거부했습니다.", ephemeral=True)
-    except ValueError:
-        await interaction.response.send_message("❌ 숫자 ID를 입력해주세요.", ephemeral=True)
+            save_server_config()
+            await interaction.response.send_message(f"🚫 `{gid}` 서버의 요청을 거부했습니다.", ephemeral=True)
+        else:
+            await interaction.response.send_message("⚠️ 해당 서버의 요청이 존재하지 않습니다.", ephemeral=True)
     except:
-        await interaction.response.send_message("⚠️ 해당 서버의 요청이 존재하지 않습니다.", ephemeral=True)
+        await interaction.response.send_message("❌ 숫자 ID를 입력해주세요.", ephemeral=True)
 
 @tree.command(name="연합목록", description="📋 이 봇에 등록된 공개 연합 서버 목록을 확인합니다.")
 async def union_list(interaction: discord.Interaction):
