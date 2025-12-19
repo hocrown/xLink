@@ -70,7 +70,7 @@ xlink-bot/
 ---
 
 ## 👤 Contributors
-- **Juno** — 전체 설계 및 개발
+- **JUNOSPACE** — 전체 설계 및 개발
 - **JUNOSPACE** — 운영/배포/기획
 
 ## 📄 라이선스
